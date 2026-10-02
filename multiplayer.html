@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Multiplayer Dice Guessing Game</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #111827, #1f2937);
+      color: #f9fafb;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #fbbf24;
+      font-size: 2.5em;
+    }
+
+    .setup-panel {
+      background: rgba(255, 255, 255, 0.08);
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      border-radius: 18px;
+      padding: 30px;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+    }
+
+    .label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 8px;
+      color: #cbd5e1;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #94a3b8;
+      font-size: 16px;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    button {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      background: #10b981;
+      color: white;
+      margin: 10px 5px;
+      transition: opacity 0.2s;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    button:disabled {
+      background: #6b7280;
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    .game-area {
+      display: none;
+    }
+
+    .game-area.active {
+      display: block;
+    }
+
+    .game-panel {
+      background: rgba(255, 255, 255, 0.08);
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      border-radius: 18px;
+      padding: 30px;
+      margin-bottom: 20px;
+    }
+
+    .game-info {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .info-box {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 15px;
+      text-align: center;
+    }
+
+    .info-label {
+      color: #cbd5e1;
+      font-size: 14px;
+    }
+
+    .info-value {
+      font-size: 24px;
+      font-weight: bold;
+      color: #fbbf24;
+      margin-top: 8px;
+    }
+
+    .dice {
+      font-size: 60px;
+      text-align: center;
+      margin: 20px 0;
+      color: #facc15;
+    }
+
+    .players-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .player-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 15px;
+      transition: all 0.3s;
+    }
+
+    .player-card.active {
+      border-color: #10b981;
+      background: rgba(16, 185, 129, 0.1);
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+    }
+
+    .player-card.winner {
+      border-color: #fbbf24;
+      background: rgba(251, 191, 36, 0.1);
+      box-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
+    }
+
+    .player-name {
+      font-weight: bold;
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+
+    .player-stats {
+      font-size: 14px;
+      color: #cbd5e1;
+      line-height: 1.6;
+    }
+
+    .guess-input {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .guess-input input {
+      flex: 1;
+    }
+
+    .guess-input button {
+      flex-shrink: 0;
+    }
+
+    #message {
+      font-size: 18px;
+      font-weight: bold;
+      min-height: 28px;
+      color: #fef3c7;
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .leaderboard {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+
+    .leaderboard-title {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 15px;
+      color: #fbbf24;
+    }
+
+    .leaderboard-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 16px;
+    }
+
+    .leaderboard-item:last-child {
+      border-bottom: none;
+    }
+
+    .leaderboard-rank {
+      font-weight: bold;
+      color: #fbbf24;
+      min-width: 30px;
+    }
+
+    .leaderboard-score {
+      color: #10b981;
+      font-weight: bold;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎲 Multiplayer Dice Guessing Game 🎲</h1>
+
+    <!-- Setup Panel -->
+    <div class="setup-panel" id="setupPanel">
+      <div class="input-group">
+        <label class="label">Player Name:</label>
+        <input type="text" id="playerName" placeholder="Enter your name" />
+      </div>
+      <button id="joinButton">Join Game</button>
+      <div style="margin-top: 20px; font-size: 14px; color: #cbd5e1;">
+        <p>Waiting for other players...</p>
+        <p id="playerCount">Players: 0</p>
+      </div>
+    </div>
+
+    <!-- Game Area -->
+    <div class="game-area" id="gameArea">
+      <!-- Game Info -->
+      <div class="game-panel">
+        <div class="game-info">
+          <div class="info-box">
+            <div class="label">Current Round</div>
+            <div class="info-value" id="currentRound">1</div>
+          </div>
+          <div class="info-box">
+            <div class="label">Category</div>
+            <div class="info-value" id="categoryDisplay">---</div>
+          </div>
+          <div class="info-box">
+            <div class="label">Current Guesser</div>
+            <div class="info-value" id="currentGuesser">---</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dice & Game State -->
+      <div class="game-panel">
+        <div class="dice" id="diceDisplay">🎲</div>
+        <div id="message">Waiting to start...</div>
+
+        <!-- Player Cards -->
+        <div class="players-grid" id="playersGrid"></div>
+
+        <!-- Guess Input (only shown for current guesser) -->
+        <div id="guessSection" class="hidden">
+          <div class="guess-input">
+            <input
+              type="text"
+              id="guessInput"
+              placeholder="Enter your guess..."
+              autocomplete="off"
+            />
+            <button id="guessButton">Guess</button>
+          </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+          <button id="rollButton" class="hidden">Roll Dice</button>
+          <button id="nextRoundButton" class="hidden">Next Round</button>
+          <button id="resetGameButton">Reset Game</button>
+        </div>
+      </div>
+
+      <!-- Leaderboard -->
+      <div class="leaderboard">
+        <div class="leaderboard-title">📊 Leaderboard</div>
+        <div id="leaderboard"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const categories = {
+      Animal: [
+        "lion",
+        "tiger",
+        "elephant",
+        "giraffe",
+        "zebra",
+        "bear",
+        "monkey",
+        "rabbit",
+        "penguin",
+        "dolphin",
+        "shark",
+        "koala",
+      ],
+      Food: [
+        "pizza",
+        "burger",
+        "pasta",
+        "apple",
+        "banana",
+        "cake",
+        "salad",
+        "sandwich",
+        "cookie",
+        "noodles",
+        "rice",
+        "soup",
+      ],
+      Mammal: [
+        "elephant",
+        "whale",
+        "dolphin",
+        "lion",
+        "giraffe",
+        "bear",
+        "tiger",
+        "kangaroo",
+        "horse",
+        "panda",
+        "monkey",
+        "rabbit",
+      ],
+    };
+
+    let players = [];
+    let currentPlayerIndex = 0;
+    let currentRound = 1;
+    let categoryName = "";
+    let secretWord = "";
+    let guessesLeft = 0;
+    let roundStarted = false;
+    let gameStarted = false;
+
+    const setupPanel = document.getElementById("setupPanel");
+    const gameArea = document.getElementById("gameArea");
+    const playerNameInput = document.getElementById("playerName");
+    const joinButton = document.getElementById("joinButton");
+    const playerCountEl = document.getElementById("playerCount");
+    const playersGrid = document.getElementById("playersGrid");
+    const diceDisplay = document.getElementById("diceDisplay");
+    const currentRoundEl = document.getElementById("currentRound");
+    const categoryDisplay = document.getElementById("categoryDisplay");
+    const currentGuesserEl = document.getElementById("currentGuesser");
+    const message = document.getElementById("message");
+    const guessInput = document.getElementById("guessInput");
+    const guessButton = document.getElementById("guessButton");
+    const guessSection = document.getElementById("guessSection");
+    const rollButton = document.getElementById("rollButton");
+    const nextRoundButton = document.getElementById("nextRoundButton");
+    const resetGameButton = document.getElementById("resetGameButton");
+    const leaderboardEl = document.getElementById("leaderboard");
+
+    function joinGame() {
+      const name = playerNameInput.value.trim();
+      if (!name) {
+        alert("Please enter a name!");
+        return;
+      }
+
+      const player = {
+        id: Date.now(),
+        name: name,
+        score: 0,
+        correctGuesses: 0,
+        totalGuesses: 0,
+      };
+
+      players.push(player);
+      playerNameInput.value = "";
+      updatePlayerCount();
+
+      if (players.length >= 2) {
+        joinButton.textContent = "Start Game";
+        joinButton.onclick = startGame;
+      }
+    }
+
+    function updatePlayerCount() {
+      playerCountEl.textContent = `Players: ${players.length}`;
+    }
+
+    function startGame() {
+      if (players.length < 2) {
+        alert("Need at least 2 players to start!");
+        return;
+      }
+
+      gameStarted = true;
+      setupPanel.style.display = "none";
+      gameArea.classList.add("active");
+
+      initializeRound();
+    }
+
+    function initializeRound() {
+      categoryName = Object.keys(categories)[
+        Math.floor(Math.random() * Object.keys(categories).length)
+      ];
+      const words = categories[categoryName];
+      secretWord = words[Math.floor(Math.random() * words.length)].toLowerCase();
+
+      currentGuesserEl.textContent = players[currentPlayerIndex].name;
+      categoryDisplay.textContent = categoryName;
+      currentRoundEl.textContent = currentRound;
+      diceDisplay.textContent = "🎲";
+
+      rollButton.classList.remove("hidden");
+      nextRoundButton.classList.add("hidden");
+      guessSection.classList.add("hidden");
+      guessInput.value = "";
+
+      roundStarted = false;
+      message.textContent = `${players[currentPlayerIndex].name}, roll the dice!`;
+
+      updatePlayerCards();
+    }
+
+    function rollDice() {
+      const roll = Math.floor(Math.random() * 6) + 1;
+      guessesLeft = roll;
+      roundStarted = true;
+
+      diceDisplay.textContent = roll;
+      message.textContent = `🎲 Rolled a ${roll}! ${players[currentPlayerIndex].name}, you have ${roll} guesses!`;
+
+      rollButton.classList.add("hidden");
+      guessSection.classList.remove("hidden");
+      guessInput.focus();
+
+      updatePlayerCards();
+    }
+
+    function submitGuess() {
+      if (!roundStarted) {
+        message.textContent = "Roll the dice first!";
+        return;
+      }
+
+      const guess = guessInput.value.trim().toLowerCase();
+      if (!guess) {
+        message.textContent = "Please type a guess.";
+        return;
+      }
+
+      const currentPlayer = players[currentPlayerIndex];
+      currentPlayer.totalGuesses++;
+      guessesLeft--;
+
+      if (guess === secretWord) {
+        currentPlayer.correctGuesses++;
+        currentPlayer.score += Math.max(guessesLeft + 1, 1);
+        message.textContent = `🎉 Correct! ${currentPlayer.name} wins this round! The answer was "${secretWord}".`;
+        roundStarted = false;
+        guessInput.disabled = true;
+        rollButton.classList.add("hidden");
+        guessSection.classList.add("hidden");
+        nextRoundButton.classList.remove("hidden");
+      } else if (guessesLeft <= 0) {
+        message.textContent = `❌ Game over! The secret word was "${secretWord}".`;
+        roundStarted = false;
+        guessInput.disabled = true;
+        rollButton.classList.add("hidden");
+        guessSection.classList.add("hidden");
+        nextRoundButton.classList.remove("hidden");
+      } else {
+        message.textContent = `Wrong! ${guessesLeft} guesses left.`;
+      }
+
+      guessInput.value = "";
+      updatePlayerCards();
+      updateLeaderboard();
+    }
+
+    function nextRound() {
+      currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+      currentRound++;
+      guessInput.disabled = false;
+      initializeRound();
+    }
+
+    function updatePlayerCards() {
+      playersGrid.innerHTML = "";
+      players.forEach((player, index) => {
+        const card = document.createElement("div");
+        card.className = "player-card";
+        if (index === currentPlayerIndex && roundStarted) {
+          card.classList.add("active");
+        }
+        card.innerHTML = `
+          <div class="player-name">${player.name}</div>
+          <div class="player-stats">
+            <div>Score: <strong>${player.score}</strong></div>
+            <div>Correct: <strong>${player.correctGuesses}</strong></div>
+            <div>Total: <strong>${player.totalGuesses}</strong></div>
+          </div>
+        `;
+        playersGrid.appendChild(card);
+      });
+    }
+
+    function updateLeaderboard() {
+      const sorted = [...players].sort((a, b) => b.score - a.score);
+      leaderboardEl.innerHTML = sorted
+        .map(
+          (player, index) => `
+        <div class="leaderboard-item">
+          <span><span class="leaderboard-rank">#${index + 1}</span> ${player.name}</span>
+          <span class="leaderboard-score">${player.score} pts</span>
+        </div>
+      `
+        )
+        .join("");
+    }
+
+    function resetGame() {
+      players = [];
+      currentPlayerIndex = 0;
+      currentRound = 1;
+      gameStarted = false;
+      roundStarted = false;
+
+      setupPanel.style.display = "block";
+      gameArea.classList.remove("active");
+
+      playerNameInput.value = "";
+      joinButton.textContent = "Join Game";
+      joinButton.onclick = joinGame;
+      updatePlayerCount();
+    }
+
+    joinButton.addEventListener("click", joinGame);
+    rollButton.addEventListener("click", rollDice);
+    guessButton.addEventListener("click", submitGuess);
+    nextRoundButton.addEventListener("click", nextRound);
+    resetGameButton.addEventListener("click", resetGame);
+
+    guessInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        submitGuess();
+      }
+    });
+
+    playerNameInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        joinGame();
+      }
+    });
+  </script>
+</body>
+</html>
