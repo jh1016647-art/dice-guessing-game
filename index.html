@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>School Play</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      color: #f8fafc;
+      padding: 20px;
+    }
+    .box {
+      width: min(700px, 100%);
+      background: rgba(255,255,255,0.08);
+      border: 2px solid rgba(255,255,255,0.15);
+      border-radius: 18px;
+      padding: 30px;
+      text-align: center;
+      box-shadow: 0 18px 36px rgba(0,0,0,0.25);
+    }
+    h1 {
+      color: #fbbf24;
+      margin-bottom: 12px;
+      font-size: 2.5em;
+    }
+    p {
+      color: #cbd5e1;
+      margin-bottom: 24px;
+      font-size: 1.1em;
+    }
+    .buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    button {
+      background: #10b981;
+      color: white;
+      border: none;
+      padding: 16px 24px;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 12px;
+      cursor: pointer;
+      min-width: 220px;
+    }
+    button.secondary {
+      background: #2563eb;
+    }
+    button:hover { opacity: 0.95; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>School Play</h1>
+    <p>Teacher-hosted classroom guessing game with a shared code.</p>
+
+    <div class="buttons">
+      <button onclick="window.location.href='teacher.html'">Teacher Game</button>
+      <button class="secondary" onclick="window.location.href='student.html'">Student Join</button>
+    </div>
+  </div>
+</body>
+</html>
